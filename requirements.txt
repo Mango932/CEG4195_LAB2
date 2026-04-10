@@ -1,7 +1,5 @@
 flask
 torch
-transformers
+torchvision
 python-dotenv
-huggingface_hub 
-datasets 
-segment-anything
+pillow

@@ -14,5 +14,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Log in to Docker Hub
+        # Only runs on push to main, not on pull requests
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag lab2:latest
+        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_HUB_USERNAME }}/lab2:latest
+
+      - name: Push to Docker Hub
+        # Only push on actual push to main, not on pull requests
+        if: github.event_name == 'push'
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/lab2:latest
