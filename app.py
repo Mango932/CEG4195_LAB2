@@ -22,12 +22,19 @@ image_size     = int(os.getenv("IMAGE_SIZE", "512"))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Loading model on {device}...")
 
+# Initialize the model structure
 model = deeplabv3_resnet101(weights=None)
-model.classifier[4]     = nn.Conv2d(256, 2, kernel_size=1)
-model.aux_classifier[4] = nn.Conv2d(256, 2, kernel_size=1)
+
+# Update the main classifier for 2 classes (Background & House)
+model.classifier[4] = nn.Conv2d(256, 2, kernel_size=1)
+
+# Fix: Only attempt to modify aux_classifier if it exists
+if model.aux_classifier is not None:
+    model.aux_classifier[4] = nn.Conv2d(256, 2, kernel_size=1)
 
 if os.path.exists(checkpoint):
-    model.load_state_dict(torch.load(checkpoint, map_location=device))
+    # FIX: Added strict=False to ignore the 'Unexpected keys' (aux_classifier weights)
+    model.load_state_dict(torch.load(checkpoint, map_location=device), strict=False)
     print(f"Loaded checkpoint: {checkpoint}")
 else:
     print(f"WARNING: No checkpoint found at {checkpoint} — using random weights")
