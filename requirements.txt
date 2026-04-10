@@ -2,3 +2,6 @@ flask
 torch
 transformers
 python-dotenv
+huggingface_hub 
+datasets 
+segment-anything
